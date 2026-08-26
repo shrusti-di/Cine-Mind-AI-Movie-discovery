@@ -11,6 +11,7 @@ CineMind/
 ├── tmdb_5000_movies.csv
 └── tmdb_5000_credits.csv
 ```
+DATASET LINK : https://www.kaggle.com/datasets/tmdb/tmdb-movie-metadata
 
 ## Run
 
