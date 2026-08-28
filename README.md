@@ -1,5 +1,5 @@
 # CineMind Pro — Netflix-style Streamlit UI
-
+Deployed the project on livemy.app : https://vh-prod-bollywood-look-alike-ai-main-5cc657-9a004260.livemy.site/
 ## Files
 
 Put these together:
