@@ -1,5 +1,7 @@
 # CineMind Pro — Netflix-style Streamlit UI
 
+Live Demo : https://cine-mind-ai-movie-discovery.onrender.com
+
 ## Files
 
 Put these together:
