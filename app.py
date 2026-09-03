@@ -565,7 +565,14 @@ def trailer_url(movie_id):
 
 @st.cache_data(show_spinner=False)
 def load_data(movies_path, credits_path):
+    movie_cols = [
+        "id", "title", "overview", "genres", "keywords",
+        "release_date", "vote_average", "vote_count", "popularity",
+        "poster_path"
+    ]
     movies = pd.read_csv(movies_path)
+    movies = movies[[c for c in movie_cols if c in movies.columns]]
+
     credits = pd.read_csv(credits_path).rename(columns={"movie_id": "id"})
     cols = [c for c in ["id", "cast", "crew"] if c in credits.columns]
     movies = movies.merge(credits[cols], on="id", how="left")
@@ -576,6 +583,7 @@ def load_data(movies_path, credits_path):
     movies["keywords_list"] = movies["keywords"].apply(parse_names)
     movies["cast_list"] = movies["cast"].apply(lambda x: parse_names(x, 5))
     movies["director_list"] = movies["crew"].apply(parse_director)
+    movies.drop(columns=["genres", "keywords", "cast", "crew"], inplace=True)
 
     for c in ["genres_list", "keywords_list", "cast_list", "director_list"]:
         movies[c.replace("_list", "_tokens")] = movies[c].apply(clean_tokens)
