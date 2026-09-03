@@ -51,6 +51,15 @@ html, body, [class*="css"] {
     padding-bottom: 3rem;
 }
 
+header[data-testid="stHeader"] {
+    background: transparent;
+    height: 0rem;
+}
+
+header[data-testid="stHeader"] * {
+    display: none;
+}
+
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-track { background: #0a0a0a; }
 ::-webkit-scrollbar-thumb { background: #3a3a3a; border-radius: 10px; }
@@ -66,10 +75,14 @@ html, body, [class*="css"] {
 .brand-logo {
     font-family: 'Bebas Neue', sans-serif;
     font-size: 2.1rem;
+    line-height: 1.4;
+    padding-top: 6px;
+    padding-bottom: 4px;
     letter-spacing: 2px;
     background: linear-gradient(90deg, #ff3b3b, #ff8a5c);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    display: inline-block;
 }
 .brand-tag {
     color: #888;
@@ -382,6 +395,26 @@ div[data-baseweb="select"] > div {
     font-size: .78rem;
     margin-top: 16px;
     letter-spacing: .5px;
+}
+div[data-testid="stToast"] {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    right: auto !important;
+    bottom: auto !important;
+    transform: translate(-50%, -50%) !important;
+    font-size: 1.3rem !important;
+    padding: 24px 32px !important;
+    min-width: 380px !important;
+    background: #1a1a1a !important;
+    border: 1px solid rgba(229,9,20,.5) !important;
+    box-shadow: 0 20px 60px rgba(0,0,0,.6) !important;
+    z-index: 9999 !important;
+}
+
+div[data-testid="stToast"] p {
+    font-size: 1.3rem !important;
+    font-weight: 600 !important;
 }
 
 footer {visibility: hidden;}
@@ -735,7 +768,7 @@ with st.spinner("Loading your cinema universe..."):
 # =========================================================
 st.markdown(
 '<div class="brand-bar">'
-'<div class="brand-logo">🎬 CINEMIND</div>'
+'<div class="brand-logo"><span style="-webkit-text-fill-color:initial;">🎬</span> CINEMIND</div>'
 '<div class="brand-tag">AI-Powered Movie Discovery</div>'
 '</div>',
 unsafe_allow_html=True
@@ -836,12 +869,24 @@ with tab1:
 
 with tab2:
     st.markdown('<div class="section-title">❤️ Build your Movie DNA</div>', unsafe_allow_html=True)
+
+    def enforce_limit():
+        if len(st.session_state.liked) > 5:
+            st.session_state.liked = st.session_state.liked[:5]
+            st.toast("You've reached your limit of 5 movies. Remove one to pick a different movie.", icon="⚠️")
+
     liked = st.multiselect(
-        "Select up to 8 movies you love",
+        "Select up to 5 movies you love",
         movies["title"].tolist(),
-        max_selections=8,
-        key="liked"
+        key="liked",
+        on_change=enforce_limit
     )
+
+    if len(liked) < 5:
+        st.caption(f"🎬 {len(liked)}/5 selected")
+    else:
+        st.success("✅ You've picked all 5! Click below to build your profile.")
+
     if liked and st.button("🧬 Build My Taste Profile", type="primary"):
         ids = [find_movie(x, movies) for x in liked]
         profile = tfidf_matrix[ids].mean(axis=0)
@@ -853,6 +898,7 @@ with tab2:
             (~result.index.isin(ids)) & (result["vote_average"] >= min_rating)
         ].sort_values("recommendation_score", ascending=False).head(12)
         render_row(result, "taste", movies)
+    
 
 with tab3:
     st.markdown('<div class="section-title">🎭 Movies for your mood</div>', unsafe_allow_html=True)
